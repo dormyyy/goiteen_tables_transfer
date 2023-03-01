@@ -6,6 +6,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+from readtable import read_table
+
 load_dotenv()
 
 # If modifying these scopes, delete the file token.json.
@@ -14,7 +16,6 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 # The ID and range of a sample spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1cYhJToC6uCt78nh60bjQFaG9HCiG9q3lQAbpZH19G3E'
 SAMPLE_RANGE_NAME = 'Маковська'
-
 
 """Shows basic usage of the Sheets API.
 Prints values from a sample spreadsheet.
@@ -40,20 +41,8 @@ if not creds or not creds.valid:
 try:
     service = build('sheets', 'v4', credentials=creds)
     sheet = service.spreadsheets()
-    result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-                                range=SAMPLE_RANGE_NAME).execute()
-    values = result.get('values', [])
 
-    if not values:
-        print('No data found.')
+    read_table(sheet, SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
 
-    print('Name, Major:')
-    for row in values:
-        # Print columns A and E, which correspond to indices 0 and 4.
-        # print('%s, %s' % (row[0], row[4]))
-        try:
-            print(row[2]) 
-        except:
-            print([])
 except HttpError as err:
     print(err)
