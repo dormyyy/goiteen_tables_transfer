@@ -42,7 +42,7 @@ try:
     service = build('sheets', 'v4', credentials=creds)
     sheet = service.spreadsheets()
 
-    read_table(sheet, SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME)
+    print(read_table(sheet, SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME))
 
 except HttpError as err:
     print(err)

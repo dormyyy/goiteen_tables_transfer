@@ -25,12 +25,15 @@ def strip_months(columns_months):
 
 def find_today(dates):
     dates = [datetime.strptime(i, '%d-%m-%y') for i in dates]
-    print(dates)
     today = datetime.today().date().strftime('%d-%m-%y')
     today = datetime.strptime(today, '%d-%m-%y')
+    inside = True
     if today not in dates:
+        inside = False
         dates.append(today)
     dates.sort()
     index = dates.index(today)
     count = index + 1
+    if inside:
+        count += 1
     return count // 2
