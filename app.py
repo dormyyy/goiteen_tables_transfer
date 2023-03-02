@@ -1,11 +1,11 @@
-import os
+import os, time
 from dotenv import load_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-
+from datetime import datetime
 from readtable import read_table
 from drivetable import drive_table
 from utils.reformat import reformat
@@ -20,7 +20,6 @@ def main():
     # The ID and range of a sample spreadsheet.
     READ_SPREADSHEET_ID = '1cYhJToC6uCt78nh60bjQFaG9HCiG9q3lQAbpZH19G3E'
     DRIVE_SPREADSHEET_ID = '1X-gBG0-lZViNcmf_9knm0J36G5vNlvhjo0u_a79vHxE'
-    SAMPLE_RANGE_NAME = 'Маковська'
 
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
@@ -70,5 +69,14 @@ def main():
         print(err)
 
 
+def check_time():
+    while True:
+        now = datetime.now()
+        if now.hour == 18 and now.weekday() == 6:  # 6 = воскресенье
+            # Запускаем другую функцию
+            main()
+        time.sleep(3600)  # Ждем 1 час перед следующей проверкой
+
+
 if __name__ == "__main__":
-    main()
+    check_time()

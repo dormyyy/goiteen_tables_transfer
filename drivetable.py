@@ -31,7 +31,7 @@ def drive_table(sheet, sheet_id, sample_range, data):
         drive_list.append(row3)
         drive_list.append(row4)
     last_column = generate_column_index(len(max(drive_list, key=len)))
-    drive = sheet.values().batchUpdate(spreadsheetId=sheet_id, body={
+    sheet.values().batchUpdate(spreadsheetId=sheet_id, body={
         "valueInputOption": "USER_ENTERED",
         "data": [
             {
