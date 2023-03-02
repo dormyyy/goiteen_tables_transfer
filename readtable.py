@@ -9,9 +9,9 @@ def read_table(sheet, sheet_id, sample_range):
     columns = sheet.values().get(spreadsheetId=sheet_id,
                                  range=sample_range, ).execute().get('values', [])
     columns_months = {}
-    current_month = columns[10:][0][0]
-    for i in range(len(columns[10:])):
-        column = columns[10:][i]
+    current_month = columns[8:][0][0]
+    for i in range(len(columns[8:])):
+        column = columns[8:][i]
         if column[0].count('(') == 0:
             current_month = column[0]
             columns_months.update({current_month: []})
@@ -31,17 +31,17 @@ def read_table(sheet, sheet_id, sample_range):
 
     data = {sample_range: []}
     for i in range(4, len(values), 3):
-        row1 = values[i - 2][2:]
-        row2 = values[i - 1][2:]
-        row3 = values[i][2:]
+        row1 = values[i - 2][1:]
+        row2 = values[i - 1][1:]
+        row3 = values[i][1:]
         name = row1[0]
         current_data = {name: {
-                'lead': row1[2],
-                'tech_lead': row1[3],
-                'soft_lead': row1[4],
-                'start_members': row1[5],
-                'start_tech': int(row1[6]) if row1[6] else 1,
-                'start_soft': int(row1[7]) if row1[7] else 1,
+                'lead': row1[1],
+                'tech_lead': row1[2],
+                'soft_lead': row1[3],
+                'start_members': row1[4],
+                'start_tech': int(row1[5]) if row1[5] else 1,
+                'start_soft': int(row1[6]) if row1[6] else 1,
                 'lessons': {
                     'tech': [],
                     'soft': [],

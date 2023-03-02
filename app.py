@@ -11,7 +11,7 @@ from readtable import read_table
 load_dotenv()
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
 # The ID and range of a sample spreadsheet.
 SAMPLE_SPREADSHEET_ID = '1cYhJToC6uCt78nh60bjQFaG9HCiG9q3lQAbpZH19G3E'
@@ -41,8 +41,16 @@ if not creds or not creds.valid:
 try:
     service = build('sheets', 'v4', credentials=creds)
     sheet = service.spreadsheets()
-
-    print(read_table(sheet, SAMPLE_SPREADSHEET_ID, SAMPLE_RANGE_NAME))
-
+    sheet_metadata = sheet.get(spreadsheetId=SAMPLE_SPREADSHEET_ID).execute()
+    properties = sheet_metadata.get('sheets')
+    sheets = [item.get('properties').get('title') for item in properties]
+    data = []
+    print(len(sheets))
+    for i in sheets:
+        try:
+            data.append(read_table(sheet, SAMPLE_SPREADSHEET_ID, i))
+        except:
+            print(f"\nerror occurred on {i}\n")
+    print(len(data))
 except HttpError as err:
     print(err)
