@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from readtable import read_table
+from drivetable import drive_table
 from utils.reformat import reformat
 
 load_dotenv()
@@ -15,7 +16,8 @@ load_dotenv()
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
 # The ID and range of a sample spreadsheet.
-SAMPLE_SPREADSHEET_ID = '1cYhJToC6uCt78nh60bjQFaG9HCiG9q3lQAbpZH19G3E'
+READ_SPREADSHEET_ID = '1cYhJToC6uCt78nh60bjQFaG9HCiG9q3lQAbpZH19G3E'
+DRIVE_SPREADSHEET_ID = '1X-gBG0-lZViNcmf_9knm0J36G5vNlvhjo0u_a79vHxE'
 SAMPLE_RANGE_NAME = 'Маковська'
 
 """Shows basic usage of the Sheets API.
@@ -42,16 +44,25 @@ if not creds or not creds.valid:
 try:
     service = build('sheets', 'v4', credentials=creds)
     sheet = service.spreadsheets()
-    sheet_metadata = sheet.get(spreadsheetId=SAMPLE_SPREADSHEET_ID).execute()
+    sheet_metadata = sheet.get(spreadsheetId=READ_SPREADSHEET_ID).execute()
     properties = sheet_metadata.get('sheets')
     sheets = [item.get('properties').get('title') for item in properties]
     data = []
     for i in sheets:
         try:
-            data.append(read_table(sheet, SAMPLE_SPREADSHEET_ID, i))
+            data.append(read_table(sheet, READ_SPREADSHEET_ID, i))
         except:
-            print(f"\nerror occurred on {i}\n")
+            print(f"reading error occurred on {i}\n")
     data = reformat(data)
+    sheet_metadata = sheet.get(spreadsheetId=DRIVE_SPREADSHEET_ID).execute()
+    properties = sheet_metadata.get('sheets')
+    sheets = [item.get('properties').get('title') for item in properties]
+    # drive_table(sheet, DRIVE_SPREADSHEET_ID, "PYTHON", data["PYTHON"])
+    for i in sheets:
+        try:
+            drive_table(sheet, DRIVE_SPREADSHEET_ID, i, data[i])
+        except:
+            print(f"driving error occurred on {i}\n")
 
 except HttpError as err:
     print(err)

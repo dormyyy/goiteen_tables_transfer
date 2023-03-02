@@ -64,24 +64,24 @@ def read_table(sheet, sheet_id, sample_range):
                 current_data[name]['lessons']['tech'].append('')
                 current_data[name]['lessons']['count_tech'].append('')
             elif current_data[name]['start_tech'] <= j < current_data[name]['start_tech'] + len(techs):
-                current_data[name]['lessons']['tech'].append(techs[t] if techs[t] else None)
-                current_data[name]['lessons']['count_tech'].append(counts[t] if counts[t] else None)
+                current_data[name]['lessons']['tech'].append(techs[t] if techs[t] else 'missing')
+                current_data[name]['lessons']['count_tech'].append(counts[t] if counts[t] else 'missing')
                 t += 1
             else:
-                current_data[name]['lessons']['tech'].append(None)
-                current_data[name]['lessons']['count_tech'].append(None)
+                current_data[name]['lessons']['tech'].append('missing')
+                current_data[name]['lessons']['count_tech'].append('missing')
 
         for j in range(1, times + current_data[name]['start_soft']):
             if j < current_data[name]['start_soft']:
                 current_data[name]['lessons']['soft'].append('')
                 current_data[name]['lessons']['count_soft'].append('')
             elif current_data[name]['start_soft'] <= j < current_data[name]['start_soft'] + len(softs):
-                current_data[name]['lessons']['soft'].append(softs[s] if softs[s] else None)
-                current_data[name]['lessons']['count_soft'].append(counts[s] if counts[s] else None)
+                current_data[name]['lessons']['soft'].append(softs[s] if softs[s] else 'missing')
+                current_data[name]['lessons']['count_soft'].append(counts[s] if counts[s] else 'missing')
                 s += 1
             else:
-                current_data[name]['lessons']['count_soft'].append(None)
-                current_data[name]['lessons']['soft'].append(None)
+                current_data[name]['lessons']['count_soft'].append('missing')
+                current_data[name]['lessons']['soft'].append('missing')
         # print(current_data[name]['lessons']['tech'])
         # print(current_data[name]['lessons']['soft'])
         # print(current_data[name]['lessons']['count_tech'])
