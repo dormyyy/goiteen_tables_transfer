@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from readtable import read_table
+from utils.reformat import reformat
 
 load_dotenv()
 
@@ -45,12 +46,12 @@ try:
     properties = sheet_metadata.get('sheets')
     sheets = [item.get('properties').get('title') for item in properties]
     data = []
-    print(len(sheets))
     for i in sheets:
         try:
             data.append(read_table(sheet, SAMPLE_SPREADSHEET_ID, i))
         except:
             print(f"\nerror occurred on {i}\n")
-    print(len(data))
+    data = reformat(data)
+
 except HttpError as err:
     print(err)
