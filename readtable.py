@@ -88,18 +88,18 @@ def read_table(sheet, sheet_id, sample_range):
 
 def read_lines(sheet, sheet_id, sample_range):
     data = {
-        'PYTHON': [],
-        'FE': [],
-        'FE_JUNIOR': [],
-        'DA': [],
-        'DA_JUNIOR': [],
-        'GD': [],
-        'MINE': [],
-        'MINE_JUNIOR': [],
-        'MINE_KIDS': [],
-        'ROB': [],
-        'SCRATCH': [],
-        'MOTION': []
+        'PYTHON': {},
+        'FE': {},
+        'FE_JUNIOR': {},
+        'DA': {},
+        'DA_JUNIOR': {},
+        'GD': {},
+        'MINE': {},
+        'MINE_JUNIOR': {},
+        'MINE_KIDS': {},
+        'ROB': {},
+        'SCRATCH': {},
+        'MOTION': {}
     }
     course_tags = {
         'Scratch': 'SCRATCH',
@@ -129,7 +129,7 @@ def read_lines(sheet, sheet_id, sample_range):
             continue
         lead = row[1]
         try:
-            lesson = row[7].replace('№', '').split('.')[0]
+            lesson = int(row[7].replace('№', '').split('.')[0])
         except:
             lesson = None
         if not lesson:
@@ -143,17 +143,19 @@ def read_lines(sheet, sheet_id, sample_range):
             print('error on', row, 'homeworks')
             continue
         local = {
-            'title': row[5],
-            'course': course,
-            'type': tpe,
-            'lead': lead,
-            'kxm': '',
-            'lesson': lesson,
-            'homeworks': homeworks
+            row[5]: {
+                'course': course,
+                'type': tpe,
+                'lead': lead,
+                'kxm': '',
+                'lesson': lesson,
+                'homeworks': homeworks,
+                'complete': False
+            }
         }
-        data[course].append(local)
+        data[course].update(local)
         print(data)
-
+        return data
 
 
 

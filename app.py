@@ -7,7 +7,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from datetime import datetime
 from readtable import read_table, read_lines
-from drivetable import drive_table
+from drivetable import drive_table, drive_rows
 from utils.reformat import reformat
 
 load_dotenv()
@@ -55,15 +55,14 @@ def main():
     #         except:
     #             print(f"reading error occurred on {i}\n")
     #     data = reformat(data)
-    #     sheet_metadata = sheet.get(spreadsheetId=DRIVE_SPREADSHEET_ID).execute()
-    #     properties = sheet_metadata.get('sheets')
-    #     sheets = [item.get('properties').get('title') for item in properties]
-    #     for i in sheets:
-    #         try:
-    #             drive_table(sheet, DRIVE_SPREADSHEET_ID, i, data[i])
-    #         except:
-    #             print(f"driving error occurred on {i}\n")
-
+        sheet_metadata = sheet.get(spreadsheetId=DRIVE_SPREADSHEET_ID).execute()
+        properties = sheet_metadata.get('sheets')
+        sheets = [item.get('properties').get('title') for item in properties]
+        for i in sheets:
+            # try:
+                drive_rows(sheet, DRIVE_SPREADSHEET_ID, i, data[i])
+            # except:
+            #     print(f"driving error occurred on {i}\n")
     except HttpError as err:
         print(err)
 
