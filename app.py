@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from datetime import datetime
 from readtable import read_table, read_lines
+# from readtable import transfer_table
 from drivetable import drive_table, drive_rows
 from utils.reformat import reformat
 
@@ -45,6 +46,7 @@ def main():
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         data = read_lines(sheet, READ_SPREADSHEET_ID, "Ответы на форму (1)")
+    #    time_data = transfer_table(sheet, '1-hYnVW1XtFpIDU8UqcaSgtHNO_cXF9DxFQ6iAJMidvU')
     #     sheet_metadata = sheet.get(spreadsheetId=READ_SPREADSHEET_ID).execute()
     #     properties = sheet_metadata.get('sheets')
     #     sheets = [item.get('properties').get('title') for item in properties]

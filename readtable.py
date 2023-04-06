@@ -1,8 +1,19 @@
 from dotenv import load_dotenv
 from utils.datetime_funcs import strip_months, find_today
-import json
+import json, string
 
 load_dotenv()
+
+
+def generate_column_index(index):
+    if index <= 0:
+        raise ValueError('Номер столбца должен быть положительным числом.')
+    letters = string.ascii_uppercase
+    result = []
+    while index > 0:
+        index, remainder = divmod(index - 1, 26)
+        result.append(letters[remainder])
+    return ''.join(reversed(result))
 
 
 def read_table(sheet, sheet_id, sample_range):
@@ -88,18 +99,18 @@ def read_table(sheet, sheet_id, sample_range):
 
 def read_lines(sheet, sheet_id, sample_range):
     data = {
-        'PYTHON': {},
-        'FE': {},
-        'FE_JUNIOR': {},
-        'DA': {},
-        'DA_JUNIOR': {},
-        'GD': {},
-        'MINE': {},
-        'MINE_JUNIOR': {},
-        'MINE_KIDS': {},
-        'ROB': {},
-        'SCRATCH': {},
-        'MOTION': {}
+        'PYTHON': [],
+        'FE': [],
+        'FE_JUNIOR': [],
+        'DA': [],
+        'DA_JUNIOR': [],
+        'GD': [],
+        'MINE': [],
+        'MINE_KIDS': [],
+        'ROB': [],
+        'SCRATCH': [],
+        'MOTION': [],
+        'SOFT': []
     }
     course_tags = {
         'Scratch': 'SCRATCH',
@@ -111,51 +122,364 @@ def read_lines(sheet, sheet_id, sample_range):
         'FrontEnd Junior': 'FE_JUNIOR',
         'Python': 'PYTHON',
         'Roblox': 'ROB',
-        'GameDev': 'GD'
+        'GameDev': 'GD',
+        'Soft Skills': 'SOFT'
+    }
+    course_indexes = {
+        'Scratch': 5,
+        'Minecraft Kids': 13,
+        'Minecraft': 21,
+        'Design Junior': 38,
+        'Digital Design': 30,
+        'FrontEnd': 55,
+        'FrontEnd Junior': 46,
+        'Python': 63,
+        'Roblox': 71,
+        'GameDev': 78,
+        'Soft Skills': 87
     }
     rows = sheet.values().get(spreadsheetId=sheet_id,
                                  range=sample_range).execute().get('values', [])
     for row in rows[1:]:
         try:
-            course = course_tags[row[4]]
-        except:
-            course = None
-        if not course:
-            print('error on', row, 'course')
+            course = row[4]
+            course_index = course_indexes[course]
+            name = row[course_index]
+        except KeyError:
             continue
-        tpe = 'tech' if 'Tech' in row[3] else 'soft' if 'Soft' in row[3] else None
-        if not tpe:
-            print('error on', row, 'type')
+        teach = row[1]
+        lesson = None
+        homeworks = None
+        if course in ['Scratch', 'Minecraft Kids', 'Digital Design', 'Design Junior',
+                      'FrontEnd Junior', 'FrontEnd', 'Python', 'Soft Skills']:
+            try:
+                lesson = int(row[course_index + 1])
+            except:
+                lesson = 1
+            try:
+                homeworks = int(row[course_index + 6])
+            except:
+                homeworks = 0
+        elif course == 'Minecraft':
+            try:
+                lesson = int(row[course_index + 2])
+            except:
+                lesson = 1
+            try:
+                homeworks = int(row[course_index + 7])
+            except:
+                homeworks = 0
+        elif course == 'Roblox':
+            try:
+                lesson = int(row[course_index + 1])
+            except:
+                lesson = 1
+            try:
+                homeworks = int(row[course_index + 5])
+            except:
+                homeworks = 0
+        elif course == 'GameDev':
+            try:
+                lesson = int(row[course_index + 2])
+            except:
+                lesson = 1
+            try:
+                homeworks = int(row[course_index + 6])
+            except:
+                homeworks = 0
+        else:
+            print('skipped on', course, '->', name)
             continue
-        lead = row[1]
-        try:
-            lesson = int(row[7].replace('№', '').split('.')[0])
-        except:
-            lesson = None
-        if not lesson:
-            print('error on', row, 'lesson')
-            continue
-        try:
-            homeworks = int(row[10])
-        except:
-            homeworks = None
-        if not homeworks:
-            print('error on', row, 'homeworks')
-            continue
-        local = {
-            row[5]: {
-                'course': course,
-                'type': tpe,
-                'lead': lead,
-                'kxm': '',
-                'lesson': lesson,
-                'homeworks': homeworks,
-                'complete': False
-            }
-        }
-        data[course].update(local)
-        print(data)
-        return data
+        # local = {
+        #         name: {
+        #             'course': course,
+        #             'teach': teach,
+        #             'lesson': lesson,
+        #             'homeworks': homeworks,
+        #             'complete': False
+        #         }
+        #     }
+        # data[course_tags[course]].update(local)
+        local = [name, teach, lesson, homeworks]
+        data[course_tags[course]].append(local)
+    return data
+
+    # for row in rows[1:]:
+    #     try:
+    #         course = course_tags[row[4]]
+    #     except:
+    #         course = None
+    #     if not course:
+    #         print('error on', row, 'course')
+    #         continue
+    #     tpe = 'tech' if 'Tech' in row[3] else 'soft' if 'Soft' in row[3] else None
+    #     if not tpe:
+    #         print('error on', row, 'type')
+    #         continue
+    #     lead = row[1]
+    #     try:
+    #         lesson = int(row[7].replace('№', '').split('.')[0])
+    #     except:
+    #         lesson = None
+    #     if not lesson:
+    #         print('error on', row, 'lesson')
+    #         continue
+    #     try:
+    #         homeworks = int(row[10])
+    #     except:
+    #         homeworks = None
+    #     if not homeworks:
+    #         print('error on', row, 'homeworks')
+    #         continue
+    #     local = {
+    #         row[5]: {
+    #             'course': course,
+    #             'type': tpe,
+    #             'lead': lead,
+    #             'kxm': '',
+    #             'lesson': lesson,
+    #             'homeworks': homeworks,
+    #             'complete': False
+    #         }
+    #     }
+    #     data[course].update(local)
+    #     print(data)
+    # return data
 
 
+# def get_table(sheet, sheet_id, sample_range):
+#     # вересень
+#     rows = sheet.values().get(spreadsheetId=sheet_id,
+#                               range=sample_range, majorDimension="COLUMNS").execute().get('values', [])
+#     groups = set(rows[3][1:])
+#     data = sheet.values().get(spreadsheetId=sheet_id,
+#                               range=sample_range).execute().get('values', [])
+#     print(data, '\n\n\n')
+#     drive_data = []
+#     for group in groups:
+#         row1 = [group, 'name', 'Дата']
+#         row2 = ['', '', 'Введіть номер заняття та тему:']
+#         row3 = ['', '', 'Залиште свої підсумки після уроку та ДЗ тут:']
+#         row4 = ['', '', 'Скільки було здано ДЗ?']
+#         row5 = ['', '', 'Cкільки у вас було сьогодні студентів? ']
+#         row6 = ['', '', 'Коментар щодо заняття (реакція студентів на програму; зрозумілість дітьми програми; що вважаєте зручним / що треба покращити)']
+#         row7 = ['', '', 'Додаткові файли до ДЗ']
+#         first = True
+#         for row in data:
+#             if row[3] == group:
+#                 if first:
+#                     row1[1] = row[2]
+#                 row1.append(row[4])
+#                 row2.append(row[6])
+#                 row3.append(row[7])
+#                 row4.append(row[8])
+#                 row5.append(row[9])
+#                 row6.append(row[10])
+#                 try:
+#                     row7.append(row[12])
+#                 except:
+#                     row7.append(' ')
+#         drive_data.append(row1)
+#         drive_data.append(row2)
+#         drive_data.append(row3)
+#         drive_data.append(row4)
+#         drive_data.append(row5)
+#         drive_data.append(row6)
+#         drive_data.append(row7)
+#     last_column = generate_column_index(len(max(drive_data, key=len)))
+#     print(drive_data)
+#     sheet.values().batchUpdate(spreadsheetId='1NAvhAQS1wSIhpVA2MPH4rLeVpfwhSUQDyGAn3GosSE8', body={
+#         "valueInputOption": "USER_ENTERED",
+#         "data": [
+#             {
+#                 "range": f"вересень!A2:{last_column}{len(drive_data) + 1}",
+#                 "majorDimension": "ROWS",
+#                 "values": drive_data
+#             }
+#         ]
+#     }).execute()
 
+# def get_table(sheet, sheet_id, sample_range):
+#     # жовтень - січень
+#     rows = sheet.values().get(spreadsheetId=sheet_id,
+#                               range=sample_range, majorDimension="COLUMNS").execute().get('values', [])
+#     groups = set(rows[3][1:])
+#     data = sheet.values().get(spreadsheetId=sheet_id,
+#                               range=sample_range).execute().get('values', [])
+#     print(data, '\n\n\n')
+#     drive_data = []
+#     for group in groups:
+#         row1 = [group, 'name', 'Дата']
+#         row2 = ['', '', 'Введіть номер заняття та тему:']
+#         row3 = ['', '', 'Залиште свої підсумки після уроку та ДЗ тут:']
+#         row4 = ['', '', 'Скільки було здано ДЗ?']
+#         row5 = ['', '', 'Cкільки у вас було сьогодні студентів? ']
+#         row6 = ['', '', 'Коментар щодо заняття (реакція студентів на програму; зрозумілість дітьми програми; що вважаєте зручним / що треба покращити)']
+#         row7 = ['', '', 'Додаткові файли до ДЗ']
+#         first = True
+#         for row in data:
+#             if row[3] == group:
+#                 if first:
+#                     row1[1] = row[2]
+#                     first = False
+#                 row1.append(row[5])
+#                 row2.append(row[7])
+#                 row3.append(row[8])
+#                 row4.append(row[10])
+#                 row5.append(' ')
+#                 row6.append(row[11])
+#                 try:
+#                     row7.append(row[9])
+#                 except:
+#                     row7.append(' ')
+#         drive_data.append(row1)
+#         drive_data.append(row2)
+#         drive_data.append(row3)
+#         drive_data.append(row4)
+#         drive_data.append(row5)
+#         drive_data.append(row6)
+#         drive_data.append(row7)
+#     last_column = generate_column_index(len(max(drive_data, key=len)))
+#     print(drive_data)
+#     sheet.values().batchUpdate(spreadsheetId='1NAvhAQS1wSIhpVA2MPH4rLeVpfwhSUQDyGAn3GosSE8', body={
+#         "valueInputOption": "USER_ENTERED",
+#         "data": [
+#             {
+#                 "range": f"січень!A2:{last_column}{len(drive_data) + 1}",
+#                 "majorDimension": "ROWS",
+#                 "values": drive_data
+#             }
+#         ]
+#     }).execute()
+
+# def get_table(sheet, sheet_id, sample_range):
+#     # лютий - березень
+#     rows = sheet.values().get(spreadsheetId=sheet_id,
+#                               range=sample_range, majorDimension="COLUMNS").execute().get('values', [])
+#     groups = set(rows[3][1:])
+#     data = sheet.values().get(spreadsheetId=sheet_id,
+#                               range=sample_range).execute().get('values', [])
+#     print(data, '\n\n\n')
+#     drive_data = []
+#     for group in groups:
+#         row1 = [group, 'name', 'Дата']
+#         row2 = ['', '', 'Введіть номер заняття та тему:']
+#         row3 = ['', '', 'Залиште свої підсумки після уроку та ДЗ тут:']
+#         row4 = ['', '', 'Скільки було здано ДЗ?']
+#         row5 = ['', '', 'Cкільки у вас було сьогодні студентів? ']
+#         row6 = ['', '', 'Коментар щодо заняття (реакція студентів на програму; зрозумілість дітьми програми; що вважаєте зручним / що треба покращити)']
+#         row7 = ['', '', 'Додаткові файли до ДЗ']
+#         first = True
+#         for row in data:
+#             if row[3] == group:
+#                 if first:
+#                     row1[1] = row[2]
+#                     first = False
+#                 row1.append(row[5])
+#                 row2.append(row[7])
+#                 row3.append(row[8])
+#                 row4.append(row[10])
+#                 row5.append(' ')
+#                 row6.append(row[11])
+#                 try:
+#                     row7.append(row[9])
+#                 except:
+#                     row7.append(' ')
+#         drive_data.append(row1)
+#         drive_data.append(row2)
+#         drive_data.append(row3)
+#         drive_data.append(row4)
+#         drive_data.append(row5)
+#         drive_data.append(row6)
+#         drive_data.append(row7)
+#     last_column = generate_column_index(len(max(drive_data, key=len)))
+#     print(drive_data)
+#     sheet.values().batchUpdate(spreadsheetId='1NAvhAQS1wSIhpVA2MPH4rLeVpfwhSUQDyGAn3GosSE8', body={
+#         "valueInputOption": "USER_ENTERED",
+#         "data": [
+#             {
+#                 "range": f"березень!A2:{last_column}{len(drive_data) + 1}",
+#                 "majorDimension": "ROWS",
+#                 "values": drive_data
+#             }
+#         ]
+#     }).execute()
+
+# def transfer_table(sheet, sheet_id):
+#     courses = {
+#         'Scratch': [],
+#         'Minecraft Kids': [],
+#         'Minecraft': [],
+#         'Design Junior': [],
+#         'Digital Art': [],
+#         'FrontEnd': [],
+#         'FrontEnd Junior': [],
+#         'Python': [],
+#         'Roblox': [],
+#         'GameDev': [],
+#         'unsorted': []
+#     }
+#     sheet_metadata = sheet.get(spreadsheetId="1NAvhAQS1wSIhpVA2MPH4rLeVpfwhSUQDyGAn3GosSE8").execute()
+#     properties = sheet_metadata.get('sheets')
+#     sheets = [item.get('properties').get('title') for item in properties][:7]
+#
+#     for item in sheets:
+#         data = sheet.values().get(spreadsheetId="1NAvhAQS1wSIhpVA2MPH4rLeVpfwhSUQDyGAn3GosSE8",
+#                                       range=item).execute().get('values', [])[1:]
+#         for i in range(6, len(data), 7):
+#             group = data[i - 6][0].lower()
+#             push = 'unsorted'
+#             if "da_jun" in group:
+#                 push = 'Design Junior'
+#             elif "fe_jun" in group:
+#                 push = 'FrontEnd Junior'
+#             elif "mine_jun" in group or "mine_kids" in group:
+#                 push = 'Minecraft Kids'
+#             elif "goiteens_ua_kids" in group:
+#                 push = 'Scratch'
+#             elif "gd" in group or "gamedev" in group:
+#                 push = 'GameDev'
+#             elif "python" in group or "py" in group:
+#                 push = 'Python'
+#             elif "rob" in group:
+#                 push = 'Roblox'
+#             elif "fe" in group or "frontend" in group or "front-end" in group:
+#                 push = 'FrontEnd'
+#             elif "da" in group or "motion" in group or "design" in group:
+#                 push = 'Digital Art'
+#             elif "mine" in group:
+#                 push = 'Minecraft'
+#             names = [i[0].lower() for i in courses[push]]
+#             is_new = True
+#             if names:
+#                 if group in names:
+#                     is_new = False
+#                     place = names.index(group) + 6
+#                     courses[push][place - 6].extend(data[i - 6][3:])
+#                     courses[push][place - 5].extend(data[i - 5][3:])
+#                     courses[push][place - 4].extend(data[i - 4][3:])
+#                     courses[push][place - 3].extend(data[i - 3][3:])
+#                     courses[push][place - 2].extend(data[i - 2][3:])
+#                     courses[push][place - 1].extend(data[i - 1][3:])
+#                     courses[push][place].extend(data[i][3:])
+#             if is_new:
+#                 courses[push].append(data[i - 6])
+#                 courses[push].append(data[i - 5])
+#                 courses[push].append(data[i - 4])
+#                 courses[push].append(data[i - 3])
+#                 courses[push].append(data[i - 2])
+#                 courses[push].append(data[i - 1])
+#                 courses[push].append(data[i])
+#     print(courses['FrontEnd Junior'])
+#     for key, value in courses.items():
+#         last_column = generate_column_index(len(max(value, key=len)))
+#         sheet.values().batchUpdate(spreadsheetId='1NAvhAQS1wSIhpVA2MPH4rLeVpfwhSUQDyGAn3GosSE8', body={
+#             "valueInputOption": "USER_ENTERED",
+#             "data": [
+#                 {
+#                     "range": f"{key}!A2:{last_column}{len(value) + 1}",
+#                     "majorDimension": "ROWS",
+#                     "values": value
+#                 }
+#             ]
+#         }).execute()
