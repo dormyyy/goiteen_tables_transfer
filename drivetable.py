@@ -69,6 +69,8 @@ def drive_rows(sheet, sheet_id, sample_range, data: list):
             drive[in_index] = local
         else:
             drive.append(local)
+    if sample_range == 'SOFT':
+        drive.sort(key=lambda x: x[0])
     last_column = generate_column_index(len(max(drive, key=len)))
     sheet.values().batchUpdate(spreadsheetId=sheet_id, body={
         "valueInputOption": "USER_ENTERED",
