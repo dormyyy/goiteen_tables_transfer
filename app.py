@@ -79,4 +79,4 @@ def check_time():
 
 
 if __name__ == "__main__":
-    main()
+    check_time()
