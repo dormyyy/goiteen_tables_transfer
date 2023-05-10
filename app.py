@@ -15,6 +15,8 @@ load_dotenv()
 
 
 def main():
+    month_dict = {1: 'Січень', 2: 'Лютий', 3: 'Березень', 4: 'Квітень', 5: 'Травень', 6: 'Червень', 7: 'Липень',
+                  8: 'Серпень', 9: 'Вересень', 10: 'Жовтень', 11: 'Листопад', 12: 'Грудень'}
     # If modifying these scopes, delete the file token.json.
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
@@ -45,7 +47,7 @@ def main():
     try:
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
-        data = read_lines(sheet, READ_SPREADSHEET_ID, "Ответы на форму (1)")
+        data = read_lines(sheet, READ_SPREADSHEET_ID, month_dict[datetime.now().month])
     #    time_data = transfer_table(sheet, '1-hYnVW1XtFpIDU8UqcaSgtHNO_cXF9DxFQ6iAJMidvU')
     #     sheet_metadata = sheet.get(spreadsheetId=READ_SPREADSHEET_ID).execute()
     #     properties = sheet_metadata.get('sheets')

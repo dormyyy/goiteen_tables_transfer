@@ -126,32 +126,35 @@ def read_lines(sheet, sheet_id, sample_range):
         'Soft Skills': 'SOFT'
     }
     course_indexes = {
-        'Scratch': 5,
-        'Minecraft Kids': 13,
-        'Minecraft': 21,
-        'Design Junior': 38,
-        'Digital Design': 30,
-        'FrontEnd': 55,
-        'FrontEnd Junior': 46,
-        'Python': 63,
-        'Roblox': 71,
-        'GameDev': 78,
-        'Soft Skills': 87
+        'Scratch': 6,
+        'Minecraft Kids': 14,
+        'Minecraft': 23,
+        'Design Junior': 41,
+        'Digital Design': 32,
+        'FrontEnd': 59,
+        'FrontEnd Junior': 50,
+        'Python': 68,
+        'Roblox': 77,
+        'GameDev': 86,
+        'Soft Skills': 93
     }
     rows = sheet.values().get(spreadsheetId=sheet_id,
                                  range=sample_range).execute().get('values', [])
-    for row in rows[1:]:
+    for row in rows[2:]:
         try:
-            course = row[4]
+            course = row[5]
             course_index = course_indexes[course]
             name = row[course_index]
         except KeyError:
+            print("KeyError")
             continue
-        teach = row[1]
+        except IndexError:
+            print("IndexError")
+            continue
+        teach = row[2]
         lesson = None
         homeworks = None
-        if course in ['Scratch', 'Minecraft Kids', 'Digital Design', 'Design Junior',
-                      'FrontEnd Junior', 'FrontEnd', 'Python', 'Soft Skills']:
+        if course in ['Scratch', 'Soft Skills']:
             try:
                 lesson = int(row[course_index + 1])
             except:
@@ -160,7 +163,8 @@ def read_lines(sheet, sheet_id, sample_range):
                 homeworks = int(row[course_index + 6])
             except:
                 homeworks = 0
-        elif course == 'Minecraft':
+        elif course in ['Minecraft Kids', 'Minecraft', 'Digital Design', 'Roblox',
+                        'Design Junior', 'FrontEnd Junior', 'FrontEnd', 'Python']:
             try:
                 lesson = int(row[course_index + 2])
             except:
@@ -169,22 +173,13 @@ def read_lines(sheet, sheet_id, sample_range):
                 homeworks = int(row[course_index + 7])
             except:
                 homeworks = 0
-        elif course == 'Roblox':
+        elif course == 'GameDev':
             try:
                 lesson = int(row[course_index + 1])
             except:
                 lesson = 1
             try:
                 homeworks = int(row[course_index + 5])
-            except:
-                homeworks = 0
-        elif course == 'GameDev':
-            try:
-                lesson = int(row[course_index + 2])
-            except:
-                lesson = 1
-            try:
-                homeworks = int(row[course_index + 6])
             except:
                 homeworks = 0
         else:
@@ -201,6 +196,7 @@ def read_lines(sheet, sheet_id, sample_range):
         #     }
         # data[course_tags[course]].update(local)
         local = [name, teach, lesson, homeworks]
+        print(local)
         data[course_tags[course]].append(local)
     return data
 
